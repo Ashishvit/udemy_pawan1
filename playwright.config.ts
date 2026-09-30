@@ -1,57 +1,48 @@
-import { defineConfig, devices } from '@playwright/test';
-
+import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
-  // Test files location
-  testDir: './tests',
-
-  // Maximum time for one test
-  timeout: 30 * 1000,
-
-  // Run tests in parallel
-  fullyParallel: true,
-
-  // Fail CI if test.only is accidentally used
-  forbidOnly: !!process.env.CI,
-
-  // Retry only on CI
-  retries: process.env.CI ? 2 : 0,
-
-  // Workers
-  workers: process.env.CI ? 1 : undefined,
-
-  // HTML Report
-  reporter: [['html', { open: 'never' }]],
-
-  // Shared settings
-  use: {
-    // Base URL
-    // baseURL: 'http://localhost:3000',
-
-    // Trace for EVERY test
-    trace: 'on',
-
-    // Screenshot for EVERY test
-    screenshot: 'on',
-
-    // Video for EVERY test
-    video: 'on',
-  },
-
-  // Browser projects
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-  ],
+timeout: 30 * 1000, //30000 ms(30 secs)
+testDir: "./tests",
+fullyParallel: true,
+retries: process.env.CI ? 2 : 0,
+workers: process.env.CI ? 1 : undefined,
+reporter: [
+["list"], // Detailed console output
+//['line'],                         
+//['dot'],                          
+// One-line progress output
+// Minimal console output
+["html", { open: "never", outputFolder: "reports" }], // HTML Report
+//['json', { outputFile: 'reports/results.json' }], // JSON Report
+["junit", { outputFile: "reports/results.xml" }], // JUnit XML Report
+["./utils/CustomReporter.ts"], // Custom reporter
+["allure-playwright", { outputFolder: "allure-results" }], // Allure Report
+],
+use: {
+trace: "on-first-retry",
+screenshot: "only-on-failure",
+video: "retain-on-failure",
+headless: false,
+viewport: { width: 1280, height: 720 }, // Set default viewport size for consiste
+ncy
+ignoreHTTPSErrors: true, // Ignore SSL errors if necessary
+permissions: ["geolocation"], // Set necessary permissions for geolocation-based 
+tests
+},
+grep: /@master/,
+projects: [
+{
+name: "chromium",
+use: { ...devices["Desktop Chrome"] },
+},
+/*
+{
+name: 'firefox',
+use: { ...devices['Desktop Firefox'] },
+},
+{
+name: 'webkit',
+use: { ...devices['Desktop Safari'] },
+}
+*/
+],
 });
